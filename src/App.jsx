@@ -168,7 +168,7 @@ export default function App() {
                   type="text"
                   value={inputNisn}
                   onChange={(e) => setInputNisn(e.target.value)}
-                  placeholder="Contoh: 0138000825"
+                  placeholder="Contoh: 0138321825"
                   className="w-full px-5 py-3.5 bg-white border border-[#E5C97A]/80 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#D4A017]/20 focus:border-[#D4A017] transition-all text-[#3D2B00] shadow-sm font-medium"
                 />
               </div>

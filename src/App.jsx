@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, AlertCircle, ArrowLeft, Award, FileText, ChevronDown, Printer, User, Loader2 } from 'lucide-react';
 
 // URL Endpoint Google Apps Script (GAS)
-// (Nanti akan kita isi setelah selesai membuat dan deploy script di Spreadsheet)
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzw7YSzEo1KfUeOJtCZ3j6jsq1J4MJ-OQaMmqrNMnfLZxtKIO-yAsa1JdZ1-qIqJLA/exec';
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzw7YSzEo1KfUeOJtCZ3j6jsq1J4MJ-OQaMmqrNMnfLZxtKIO-yAsa1JdZ1-qIqJLA/exec";
 
 export default function App() {
   const [view, setView] = useState('login'); // 'login' | 'result'

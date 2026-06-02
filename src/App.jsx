@@ -350,9 +350,9 @@ export default function App() {
 
                 <div className={`mt-4 p-4 rounded-xl flex items-center justify-center gap-2 text-sm md:text-base font-bold border shadow-sm ${student.rata >= student.rataKelas ? 'bg-[#E8F5E9] text-[#1B5E20] border-[#A5D6A7]' : 'bg-[#FFEBEE] text-[#C62828] border-[#FFCDD2]'} print:border-gray-800 print:bg-white print:text-black`}>
                   {student.rata >= student.rataKelas ? (
-                    <>🎯 Rata-rata Siswa di atas Rata-rata Kelas ({student.rataKelas.toFixed(2)})</>
+                    <>🎯 Rata-rata Kelas ({student.rataKelas.toFixed(2)})</>
                   ) : (
-                    <>📉 Rata-rata Siswa di bawah Rata-rata Kelas ({student.rataKelas.toFixed(2)})</>
+                    <>📉 Rata-rata Kelas ({student.rataKelas.toFixed(2)})</>
                   )}
                 </div>
               </div>

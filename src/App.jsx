@@ -65,7 +65,6 @@ export default function App() {
     setIsLoading(true);
 
     try {
-      // PERBAIKAN: Menambahkan { method: 'GET', redirect: 'follow' } untuk menangani CORS/Redirect GAS
       const response = await fetch(
         `${GAS_URL}?nisn=${encodeURIComponent(cleanInputNisn)}&tgl=${encodeURIComponent(cleanInputTgl)}`,
         {
@@ -128,7 +127,7 @@ export default function App() {
         {view === 'login' && (
           <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-[0_15px_40px_rgb(184,134,11,0.15)] border border-[#E5C97A]/60 p-6 md:p-10 print:hidden relative overflow-hidden">
             
-            {/* Animasi Emas Bergerak (Sentuhan "Manusiawi/Premium") */}
+            {/* Animasi Emas Bergerak */}
             <div className="absolute -top-10 -right-10 w-48 h-48 bg-gradient-to-br from-[#D4A017] to-[#F9F3E5] rounded-full z-0 gold-glow-1 mix-blend-multiply opacity-50"></div>
             <div className="absolute -bottom-12 -left-12 w-56 h-56 bg-gradient-to-tr from-[#E5C97A] to-[#FBF7F0] rounded-full z-0 gold-glow-2 mix-blend-multiply opacity-50"></div>
 
@@ -210,7 +209,6 @@ export default function App() {
         {view === 'result' && student && (
           <div className="bg-white rounded-3xl shadow-[0_15px_40px_rgb(184,134,11,0.12)] border border-[#E5C97A]/60 p-6 md:p-10 print:shadow-none print:border-none print:p-0 relative overflow-hidden">
             
-            {/* Animasi Emas di Hasil Lulus */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#D4A017]/20 to-transparent rounded-bl-full z-0 gold-glow-1 print:hidden"></div>
 
             {/* Tombol Kembali (Hidden on Print) */}
@@ -241,18 +239,9 @@ export default function App() {
               <p className="text-[#7A5C1E] text-sm font-medium mt-1">SIBI SD Ya Ummi Fatimah</p>
             </div>
 
-            {/* Banner Lulus */}
-            <div className="relative z-10 bg-gradient-to-r from-[#1B5E20] via-[#2E7D32] to-[#1B5E20] text-white text-center py-5 px-6 rounded-2xl font-bold tracking-widest text-lg md:text-xl shadow-xl shadow-green-900/20 mb-8 flex items-center justify-center gap-3 overflow-hidden print:border-2 print:border-[#1B5E20] print:text-[#1B5E20] print:bg-none print:shadow-none">
-               <div className="absolute inset-0 bg-white/10 animate-[pulse_2s_ease-in-out_infinite] print:hidden"></div>
-               <Award size={28} className="print:text-[#1B5E20] relative z-10" />
-               <span className="relative z-10 drop-shadow-md print:drop-shadow-none">DINYATAKAN LULUS</span>
-               <Award size={28} className="print:text-[#1B5E20] relative z-10" />
-            </div>
-
-            {/* Kartu Identitas Siswa */}
-            <div className="relative z-10 flex flex-col sm:flex-row gap-6 bg-gradient-to-br from-[#F9F3E5] to-white border border-[#E5C97A] p-6 rounded-2xl mb-8 print:border-gray-800 print:bg-white shadow-sm">
+            {/* URUTAN 1: Kartu Identitas Siswa */}
+            <div className="relative z-10 flex flex-col sm:flex-row gap-6 bg-gradient-to-br from-[#F9F3E5] to-white border border-[#E5C97A] p-6 rounded-2xl mb-6 print:border-gray-800 print:bg-white shadow-sm">
               
-              {/* Foto Box */}
               <div className="w-28 h-36 flex-shrink-0 bg-white border-2 border-dashed border-[#D4A017] rounded-xl overflow-hidden flex flex-col items-center justify-center text-[#8B6508] mx-auto sm:mx-0 shadow-inner print:border-solid print:border-gray-800 relative group">
                 {student.foto ? (
                   <img 
@@ -290,7 +279,15 @@ export default function App() {
               </div>
             </div>
 
-            {/* Accordion TKA */}
+            {/* URUTAN 2: Banner Lulus */}
+            <div className="relative z-10 bg-gradient-to-r from-[#1B5E20] via-[#2E7D32] to-[#1B5E20] text-white text-center py-5 px-6 rounded-2xl font-bold tracking-widest text-lg md:text-xl shadow-xl shadow-green-900/20 mb-8 flex items-center justify-center gap-3 overflow-hidden print:border-2 print:border-[#1B5E20] print:text-[#1B5E20] print:bg-none print:shadow-none">
+               <div className="absolute inset-0 bg-white/10 animate-[pulse_2s_ease-in-out_infinite] print:hidden"></div>
+               <Award size={28} className="print:text-[#1B5E20] relative z-10" />
+               <span className="relative z-10 drop-shadow-md print:drop-shadow-none">DINYATAKAN LULUS</span>
+               <Award size={28} className="print:text-[#1B5E20] relative z-10" />
+            </div>
+
+            {/* URUTAN 3: Accordion TKA (Tabel Gabungan) */}
             <div className="relative z-10 mb-8">
               <button 
                 onClick={() => setIsTkaOpen(!isTkaOpen)}
@@ -298,63 +295,82 @@ export default function App() {
               >
                 <div className="flex items-center gap-3">
                   <FileText size={20} className="text-[#D4A017]" /> 
-                  <span className="tracking-wide">Lihat Nilai TKA</span>
+                  <span className="tracking-wide">Lihat Nilai TKA & Rata-Rata Kelas</span>
                 </div>
                 <ChevronDown size={20} className={`transition-transform duration-300 ${isTkaOpen ? 'rotate-180' : ''}`} />
               </button>
 
               <div 
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${isTkaOpen ? 'max-h-[800px] mt-4 opacity-100' : 'max-h-0 opacity-0'} print:max-h-none print:opacity-100 print:mt-6 print:block`}
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${isTkaOpen ? 'max-h-[1000px] mt-4 opacity-100' : 'max-h-0 opacity-0'} print:max-h-none print:opacity-100 print:mt-6 print:block`}
               >
+                {/* Tabel Gabungan (Siswa & Kelas) */}
                 <div className="bg-white border border-[#E5C97A] rounded-2xl overflow-hidden print:border-gray-800 shadow-sm">
                   <div className="bg-gradient-to-r from-[#F9F3E5] to-[#FDFBF7] text-[#8B6508] font-bold text-center py-3 text-sm md:text-base uppercase tracking-widest border-b border-[#E5C97A] print:border-gray-800 print:bg-none">
                     Tes Kemampuan Akademik (TKA)
                   </div>
+                  
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm md:text-base text-left">
                       <thead className="bg-white text-[#7A5C1E] border-b border-[#E5C97A] print:border-gray-800">
                         <tr>
-                          <th className="py-4 px-5 font-bold">Mata Pelajaran</th>
-                          <th className="py-4 px-5 font-bold text-center w-28">Nilai</th>
-                          <th className="py-4 px-5 font-bold text-right w-36">Keterangan</th>
+                          <th className="py-4 px-4 font-bold">Mata Pelajaran</th>
+                          <th className="py-4 px-4 font-bold text-center">Nilai</th>
+                          <th className="py-4 px-4 font-bold text-center">Keterangan</th>
+                          {/* Kolom Pemisah Berwarna/Border Rata-rata Kelas */}
+                          <th className="py-4 px-4 font-bold text-center border-l-2 border-dashed border-[#E5C97A]/60 bg-[#FDFBF7] print:border-solid print:border-gray-400 print:bg-transparent">
+                            Rata-Rata Kelas
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
+                        {/* Matematika */}
                         <tr className="border-b border-[#F9F3E5] hover:bg-[#FBF7F0]/50 transition-colors print:border-gray-800">
-                          <td className="py-4 px-5 text-[#3D2B00] font-semibold">Matematika</td>
-                          <td className="py-4 px-5 text-center font-bold text-[#2C2416] text-lg">{student.mat.toFixed(2)}</td>
-                          <td className="py-4 px-5 text-right">
+                          <td className="py-4 px-4 text-[#3D2B00] font-semibold">Matematika</td>
+                          <td className="py-4 px-4 text-center font-bold text-[#2C2416] text-lg">{student.mat.toFixed(2)}</td>
+                          <td className="py-4 px-4 text-center">
                             <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide ${student.matKet.toLowerCase() === 'baik' ? 'bg-[#E8F5E9] text-[#2E7D32] print:border print:border-[#2E7D32]' : 'bg-[#FFF8E1] text-[#F57F17] print:border print:border-[#F57F17]'}`}>
                               {student.matKet}
                             </span>
                           </td>
+                          <td className="py-4 px-4 border-l-2 border-dashed border-[#E5C97A]/60 bg-[#FDFBF7] print:border-solid print:border-gray-400 print:bg-transparent text-center text-[#D4A017] print:text-gray-400 font-bold">-</td>
                         </tr>
-                        <tr className="border-b border-[#F9F3E5] hover:bg-[#FBF7F0]/50 transition-colors print:border-gray-800">
-                          <td className="py-4 px-5 text-[#3D2B00] font-semibold">Bahasa Indonesia</td>
-                          <td className="py-4 px-5 text-center font-bold text-[#2C2416] text-lg">{student.bind.toFixed(2)}</td>
-                          <td className="py-4 px-5 text-right">
+                        
+                        {/* Bahasa Indonesia */}
+                        <tr className="border-b border-[#E5C97A] hover:bg-[#FBF7F0]/50 transition-colors print:border-gray-800">
+                          <td className="py-4 px-4 text-[#3D2B00] font-semibold">Bahasa Indonesia</td>
+                          <td className="py-4 px-4 text-center font-bold text-[#2C2416] text-lg">{student.bind.toFixed(2)}</td>
+                          <td className="py-4 px-4 text-center">
                              <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide ${student.bindKet.toLowerCase() === 'baik' ? 'bg-[#E8F5E9] text-[#2E7D32] print:border print:border-[#2E7D32]' : 'bg-[#FFF8E1] text-[#F57F17] print:border print:border-[#F57F17]'}`}>
                               {student.bindKet}
                             </span>
                           </td>
+                          <td className="py-4 px-4 border-l-2 border-dashed border-[#E5C97A]/60 bg-[#FDFBF7] print:border-solid print:border-gray-400 print:bg-transparent text-center text-[#D4A017] print:text-gray-400 font-bold">-</td>
                         </tr>
+                        
+                        {/* Row Total Rata-Rata */}
                         <tr className="bg-gradient-to-r from-[#F9F3E5] to-[#FDFBF7] print:bg-none print:border-t print:border-gray-800">
-                          <td className="py-4 px-5 text-[#8B6508] font-extrabold uppercase">Rata-rata Nilai</td>
-                          <td className="py-4 px-5 text-center font-extrabold text-[#8B6508] text-xl">{student.rata.toFixed(2)}</td>
-                          <td className="py-4 px-5"></td>
+                          <td className="py-5 px-4 text-[#8B6508] font-extrabold uppercase">Rata-Rata (Gabungan)</td>
+                          <td className="py-5 px-4 text-center font-extrabold text-[#8B6508] text-xl">{student.rata.toFixed(2)}</td>
+                          <td className="py-5 px-4"></td>
+                          {/* Rata-rata Kelas ditempatkan sejajar di kanan Rata-rata Siswa */}
+                          <td className="py-5 px-4 border-l-2 border-solid border-[#D4A017] bg-[#F9F3E5] print:border-gray-800 print:bg-transparent text-center font-extrabold text-[#2C2416] text-xl">
+                            {student.rataKelas.toFixed(2)}
+                          </td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                 </div>
 
-                <div className={`mt-4 p-4 rounded-xl flex items-center justify-center gap-2 text-sm md:text-base font-bold border shadow-sm ${student.rata >= student.rataKelas ? 'bg-[#E8F5E9] text-[#1B5E20] border-[#A5D6A7]' : 'bg-[#FFEBEE] text-[#C62828] border-[#FFCDD2]'} print:border-gray-800 print:bg-white print:text-black`}>
+                {/* Kotak Kesimpulan */}
+                <div className={`mt-5 p-4 rounded-xl flex items-center justify-center gap-2 text-sm md:text-base font-bold border shadow-sm ${student.rata >= student.rataKelas ? 'bg-[#E8F5E9] text-[#1B5E20] border-[#A5D6A7]' : 'bg-[#FFEBEE] text-[#C62828] border-[#FFCDD2]'} print:border-gray-800 print:bg-white print:text-black`}>
                   {student.rata >= student.rataKelas ? (
-                    <>🎯 Rata-rata Kelas ({student.rataKelas.toFixed(2)})</>
+                    <>🎯 Rata-rata Nilai Siswa berada di atas Rata-rata Kelas</>
                   ) : (
-                    <>📉 Rata-rata Kelas ({student.rataKelas.toFixed(2)})</>
+                    <>📉 Rata-rata Nilai Siswa berada di bawah Rata-rata Kelas</>
                   )}
                 </div>
+
               </div>
             </div>
 

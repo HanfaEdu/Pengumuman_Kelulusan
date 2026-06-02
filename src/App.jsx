@@ -123,7 +123,7 @@ export default function App() {
                 SIBI SD YA UMMI FATIMAH
               </h1>
               <p className="text-[#7A5C1E] text-sm mt-1 font-medium tracking-wide">
-                Pengumuman Kelulusan &bull; Tahun Ajaran 2024/2025
+                Pengumuman Kelulusan &bull; Tahun Ajaran 2025/2026
               </p>
             </div>
 
@@ -153,7 +153,7 @@ export default function App() {
                   type="text"
                   value={inputTgl}
                   onChange={(e) => setInputTgl(e.target.value)}
-                  placeholder="Contoh: 04 Juli 2014"
+                  placeholder="Contoh: 08 Juni 2014"
                   className="w-full px-4 py-3 bg-[#FBF7F0] border border-[#E5C97A] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:bg-white transition-all text-[#3D2B00]"
                 />
               </div>

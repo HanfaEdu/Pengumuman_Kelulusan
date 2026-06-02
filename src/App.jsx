@@ -11,18 +11,43 @@ export default function App() {
   const [error, setError] = useState('');
   const [student, setStudent] = useState(null);
   const [isTkaOpen, setIsTkaOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // State untuk animasi loading saat cari data
-  
-  // State animasi untuk transisi halaman
+  const [isLoading, setIsLoading] = useState(false); 
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Injeksi Font Playfair Display untuk kesan Ijazah/Formal
+  // Injeksi Font Playfair Display & Animasi Custom
   useEffect(() => {
-    const link = document.createElement('link');
-    link.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&display=swap';
-    link.rel = 'stylesheet';
-    document.head.appendChild(link);
-    return () => document.head.removeChild(link);
+    // Inject Font
+    const fontLink = document.createElement('link');
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&display=swap';
+    fontLink.rel = 'stylesheet';
+    document.head.appendChild(fontLink);
+
+    // Inject Custom Keyframes (Animasi Emas Bernyawa)
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes floatGlow {
+        0% { transform: translate(0px, 0px) scale(1); opacity: 0.4; filter: blur(20px); }
+        50% { transform: translate(-15px, 15px) scale(1.1); opacity: 0.8; filter: blur(25px); }
+        100% { transform: translate(0px, 0px) scale(1); opacity: 0.4; filter: blur(20px); }
+      }
+      @keyframes floatGlowReverse {
+        0% { transform: translate(0px, 0px) scale(1.1); opacity: 0.8; filter: blur(25px); }
+        50% { transform: translate(15px, -15px) scale(1); opacity: 0.4; filter: blur(20px); }
+        100% { transform: translate(0px, 0px) scale(1.1); opacity: 0.8; filter: blur(25px); }
+      }
+      .gold-glow-1 {
+        animation: floatGlow 6s ease-in-out infinite;
+      }
+      .gold-glow-2 {
+        animation: floatGlowReverse 7s ease-in-out infinite;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(fontLink);
+      document.head.removeChild(style);
+    };
   }, []);
 
   const handleLogin = async (e) => {
@@ -34,32 +59,37 @@ export default function App() {
       return;
     }
 
-    // Pembersihan input
     const cleanInputNisn = inputNisn.trim();
     const cleanInputTgl = inputTgl.trim().toLowerCase().replace(/\s+/g, ' ');
 
-    setIsLoading(true); // Aktifkan tombol loading
+    setIsLoading(true);
 
     try {
-      // Memanggil API GAS untuk mencari data spesifik (GET Request)
-      const response = await fetch(`${GAS_URL}?nisn=${encodeURIComponent(cleanInputNisn)}&tgl=${encodeURIComponent(cleanInputTgl)}`);
+      // PERBAIKAN: Menambahkan { method: 'GET', redirect: 'follow' } untuk menangani CORS/Redirect GAS
+      const response = await fetch(
+        `${GAS_URL}?nisn=${encodeURIComponent(cleanInputNisn)}&tgl=${encodeURIComponent(cleanInputTgl)}`,
+        {
+          method: 'GET',
+          redirect: 'follow'
+        }
+      );
       
-      if (!response.ok) throw new Error('Jaringan bermasalah');
+      if (!response.ok) throw new Error('Jaringan bermasalah atau akses ditolak');
       
       const result = await response.json();
 
       if (result.status === 'success') {
-        setStudent(result.data); // data berisi: nama, nisn, tgl, mat, matKet, dll + rataKelas + foto
+        setStudent(result.data);
         setIsTkaOpen(false);
         triggerTransition('result');
       } else {
         setError(result.message || 'Data tidak ditemukan. Periksa kembali NISN dan Tanggal Lahir.');
       }
     } catch (err) {
-      setError('Gagal menghubungi server. Pastikan koneksi internet stabil (URL GAS belum di-set).');
-      console.error(err);
+      setError('Gagal menghubungi server. Pastikan koneksi internet stabil dan GAS merespons dengan benar.');
+      console.error('Fetch Error:', err);
     } finally {
-      setIsLoading(false); // Matikan loading
+      setIsLoading(false);
     }
   };
 
@@ -74,63 +104,63 @@ export default function App() {
     setTimeout(() => {
       setView(targetView);
       setIsAnimating(false);
-    }, 400); // Waktu yang sama dengan durasi opacity-0 di CSS
+    }, 400);
   };
 
   const handlePrint = () => {
-    // Pada saat print, kita paksa TKA terbuka agar terlihat di PDF
     setIsTkaOpen(true);
     setTimeout(() => {
       window.print();
-    }, 300); // Beri waktu animasi buka accordion selesai
+    }, 300);
   };
 
   return (
-    <div className="min-h-screen bg-[#FBF7F0] text-[#3D2B00] font-sans flex items-center justify-center p-4 md:p-8 print:bg-white print:p-0">
+    <div className="min-h-screen bg-[#FBF7F0] text-[#3D2B00] font-sans flex items-center justify-center p-4 md:p-8 print:bg-white print:p-0 overflow-hidden relative">
       
-      {/* Container Utama: 
-        Menggunakan transisi opacity & scale agar pergerakan halaman halus.
-      */}
+      {/* Container Utama dengan Transisi Halus */}
       <div 
-        className={`w-full max-w-lg transition-all duration-400 ease-in-out ${
-          isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-        } print:max-w-none print:w-full print:scale-100 print:opacity-100`}
+        className={`w-full max-w-lg transition-all duration-500 ease-in-out ${
+          isAnimating ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'
+        } print:max-w-none print:w-full print:scale-100 print:opacity-100 print:translate-y-0 relative z-10`}
       >
         
         {/* ======================= VIEW: LOGIN ======================= */}
         {view === 'login' && (
-          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(184,134,11,0.12)] border border-[#E5C97A] p-6 md:p-10 print:hidden relative overflow-hidden">
-            {/* Ornament Background */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#F9F3E5] rounded-bl-full -z-10 opacity-60"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#F9F3E5] rounded-tr-full -z-10 opacity-60"></div>
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-[0_15px_40px_rgb(184,134,11,0.15)] border border-[#E5C97A]/60 p-6 md:p-10 print:hidden relative overflow-hidden">
+            
+            {/* Animasi Emas Bergerak (Sentuhan "Manusiawi/Premium") */}
+            <div className="absolute -top-10 -right-10 w-48 h-48 bg-gradient-to-br from-[#D4A017] to-[#F9F3E5] rounded-full z-0 gold-glow-1 mix-blend-multiply opacity-50"></div>
+            <div className="absolute -bottom-12 -left-12 w-56 h-56 bg-gradient-to-tr from-[#E5C97A] to-[#FBF7F0] rounded-full z-0 gold-glow-2 mix-blend-multiply opacity-50"></div>
 
-            <div className="text-center mb-8">
-              <div className="w-20 h-20 mx-auto bg-[#F9F3E5] border-2 border-[#D4A017] rounded-full flex items-center justify-center mb-4 p-1 shadow-sm">
-                {/* Fallback jika logo.png gagal load */}
+            <div className="relative z-10 text-center mb-8">
+              <div className="w-24 h-24 mx-auto bg-gradient-to-br from-[#F9F3E5] to-white border-2 border-[#D4A017] rounded-full flex items-center justify-center mb-5 p-1 shadow-lg shadow-[#D4A017]/20 relative group">
+                <div className="absolute inset-0 rounded-full border border-[#E5C97A] animate-ping opacity-20"></div>
                 <img 
                   src="/logo.png" 
                   alt="Logo Sekolah" 
-                  className="w-full h-full object-contain rounded-full"
+                  className="w-full h-full object-contain rounded-full relative z-10"
                   onError={(e) => {
                     e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'block';
+                    e.target.nextSibling.style.display = 'flex';
                   }}
                 />
-                <div style={{display: 'none'}}><Award size={40} className="text-[#8B6508]" /></div>
+                <div style={{display: 'none'}} className="items-center justify-center w-full h-full">
+                  <Award size={48} className="text-[#8B6508]" />
+                </div>
               </div>
-              <h1 className="text-2xl text-[#8B6508] tracking-wide" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
+              <h1 className="text-2xl md:text-3xl text-[#8B6508] tracking-wide" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
                 SIBI SD YA UMMI FATIMAH
               </h1>
-              <p className="text-[#7A5C1E] text-sm mt-1 font-medium tracking-wide">
-                Pengumuman Kelulusan &bull; Tahun Ajaran 2025/2026
+              <p className="text-[#7A5C1E] text-sm md:text-base mt-2 font-medium tracking-wider">
+                Pengumuman Kelulusan &bull; 2025/2026
               </p>
             </div>
 
-            <div className="border-t border-[#E5C97A] border-opacity-50 my-6"></div>
+            <div className="relative z-10 border-t border-[#E5C97A] border-opacity-40 my-6"></div>
 
-            <form onSubmit={handleLogin} className="space-y-5">
+            <form onSubmit={handleLogin} className="relative z-10 space-y-6">
               <div>
-                <label htmlFor="nisn" className="block text-xs font-bold text-[#7A5C1E] uppercase tracking-wider mb-2">
+                <label htmlFor="nisn" className="block text-xs font-bold text-[#8B6508] uppercase tracking-wider mb-2 ml-1">
                   Nomor Induk Siswa Nasional (NISN)
                 </label>
                 <input
@@ -139,12 +169,12 @@ export default function App() {
                   value={inputNisn}
                   onChange={(e) => setInputNisn(e.target.value)}
                   placeholder="Contoh: 0138000825"
-                  className="w-full px-4 py-3 bg-[#FBF7F0] border border-[#E5C97A] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:bg-white transition-all text-[#3D2B00]"
+                  className="w-full px-5 py-3.5 bg-white border border-[#E5C97A]/80 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#D4A017]/20 focus:border-[#D4A017] transition-all text-[#3D2B00] shadow-sm font-medium"
                 />
               </div>
 
               <div>
-                <label htmlFor="tgl" className="block text-xs font-bold text-[#7A5C1E] uppercase tracking-wider mb-2">
+                <label htmlFor="tgl" className="block text-xs font-bold text-[#8B6508] uppercase tracking-wider mb-2 ml-1">
                   Tanggal Lahir
                 </label>
                 <input
@@ -153,13 +183,13 @@ export default function App() {
                   value={inputTgl}
                   onChange={(e) => setInputTgl(e.target.value)}
                   placeholder="Contoh: 08 Juni 2014"
-                  className="w-full px-4 py-3 bg-[#FBF7F0] border border-[#E5C97A] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:bg-white transition-all text-[#3D2B00]"
+                  className="w-full px-5 py-3.5 bg-white border border-[#E5C97A]/80 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#D4A017]/20 focus:border-[#D4A017] transition-all text-[#3D2B00] shadow-sm font-medium"
                 />
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 bg-[#FFEBEE] text-[#C62828] p-3 rounded-lg text-sm font-medium animate-pulse">
-                  <AlertCircle size={18} />
+                <div className="flex items-start gap-3 bg-red-50 border border-red-100 text-red-700 p-4 rounded-xl text-sm font-medium animate-pulse shadow-sm">
+                  <AlertCircle size={20} className="shrink-0 mt-0.5" />
                   <span>{error}</span>
                 </div>
               )}
@@ -167,9 +197,9 @@ export default function App() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#8B6508] hover:bg-[#6B4F0F] disabled:bg-[#D4A017] disabled:cursor-not-allowed text-[#F9F3E5] py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all transform active:scale-[0.98] disabled:active:scale-100 shadow-lg shadow-[#8B6508]/20 mt-2"
+                className="w-full bg-gradient-to-r from-[#8B6508] to-[#6B4F0F] hover:from-[#7A5C1E] hover:to-[#5C4305] disabled:from-[#D4A017] disabled:to-[#D4A017] disabled:cursor-not-allowed text-[#F9F3E5] py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all transform active:scale-[0.98] disabled:active:scale-100 shadow-[0_8px_20px_rgb(139,101,8,0.3)] hover:shadow-[0_12px_25px_rgb(139,101,8,0.4)] mt-4 tracking-wide"
               >
-                {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+                {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} />}
                 {isLoading ? 'Mencari Data...' : 'Cek Hasil Kelulusan'}
               </button>
             </form>
@@ -178,53 +208,57 @@ export default function App() {
 
         {/* ======================= VIEW: RESULT ======================= */}
         {view === 'result' && student && (
-          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(184,134,11,0.12)] border border-[#E5C97A] p-6 md:p-10 print:shadow-none print:border-none print:p-0 relative">
+          <div className="bg-white rounded-3xl shadow-[0_15px_40px_rgb(184,134,11,0.12)] border border-[#E5C97A]/60 p-6 md:p-10 print:shadow-none print:border-none print:p-0 relative overflow-hidden">
             
+            {/* Animasi Emas di Hasil Lulus */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#D4A017]/20 to-transparent rounded-bl-full z-0 gold-glow-1 print:hidden"></div>
+
             {/* Tombol Kembali (Hidden on Print) */}
             <button 
               onClick={handleLogout}
-              className="flex items-center gap-2 text-[#8B6508] hover:text-[#5C4305] text-sm font-semibold mb-6 transition-colors print:hidden"
+              className="relative z-10 flex items-center gap-2 text-[#8B6508] hover:text-[#5C4305] text-sm font-bold mb-6 transition-colors bg-[#F9F3E5] hover:bg-[#E5C97A]/30 px-4 py-2 rounded-lg print:hidden w-max"
             >
               <ArrowLeft size={16} /> Kembali
             </button>
 
-            {/* Header Surat Lulus */}
+            {/* Header Surat Lulus (Print Mode) */}
             <div className="text-center mb-6 hidden print:block">
-               {/* Elemen ini hanya muncul saat di-print untuk Kop Surat */}
                <div className="flex items-center justify-center gap-4 mb-4">
-                  <img src="/logo.png" alt="Logo" className="w-16 h-16 object-contain" />
+                  <img src="/logo.png" alt="Logo" className="w-20 h-20 object-contain" />
                   <div>
                     <h1 className="text-2xl text-[#8B6508] font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>SIBI SD YA UMMI FATIMAH</h1>
-                    <p className="text-sm text-[#7A5C1E]">Pengumuman Kelulusan Tahun Ajaran 2024/2025</p>
+                    <p className="text-sm text-[#7A5C1E]">Pengumuman Kelulusan Tahun Ajaran 2025/2026</p>
                   </div>
                </div>
-               <div className="border-b-2 border-[#8B6508] mb-6"></div>
+               <div className="border-b-4 border-double border-[#8B6508] mb-6"></div>
             </div>
 
-            <div className="text-center mb-6 print:hidden">
-              <h1 className="text-xl text-[#8B6508]" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
+            {/* Header Surat Lulus (Web Mode) */}
+            <div className="relative z-10 text-center mb-8 print:hidden">
+              <h1 className="text-2xl md:text-3xl text-[#8B6508]" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
                 Surat Keterangan Lulus
               </h1>
-              <p className="text-[#7A5C1E] text-sm">SIBI SD Ya Ummi Fatimah</p>
+              <p className="text-[#7A5C1E] text-sm font-medium mt-1">SIBI SD Ya Ummi Fatimah</p>
             </div>
 
             {/* Banner Lulus */}
-            <div className="bg-gradient-to-r from-[#1B5E20] to-[#2E7D32] text-white text-center py-4 px-6 rounded-xl font-bold tracking-widest text-lg shadow-lg mb-6 flex items-center justify-center gap-3 relative overflow-hidden print:border print:border-[#1B5E20] print:text-[#1B5E20] print:bg-none print:shadow-none">
-               <Award size={24} className="print:text-[#1B5E20]" />
-               DINYATAKAN LULUS
-               <Award size={24} className="print:text-[#1B5E20]" />
+            <div className="relative z-10 bg-gradient-to-r from-[#1B5E20] via-[#2E7D32] to-[#1B5E20] text-white text-center py-5 px-6 rounded-2xl font-bold tracking-widest text-lg md:text-xl shadow-xl shadow-green-900/20 mb-8 flex items-center justify-center gap-3 overflow-hidden print:border-2 print:border-[#1B5E20] print:text-[#1B5E20] print:bg-none print:shadow-none">
+               <div className="absolute inset-0 bg-white/10 animate-[pulse_2s_ease-in-out_infinite] print:hidden"></div>
+               <Award size={28} className="print:text-[#1B5E20] relative z-10" />
+               <span className="relative z-10 drop-shadow-md print:drop-shadow-none">DINYATAKAN LULUS</span>
+               <Award size={28} className="print:text-[#1B5E20] relative z-10" />
             </div>
 
             {/* Kartu Identitas Siswa */}
-            <div className="flex flex-col sm:flex-row gap-5 bg-[#F9F3E5] border border-[#E5C97A] p-5 rounded-xl mb-6 print:border-[#000] print:bg-white">
+            <div className="relative z-10 flex flex-col sm:flex-row gap-6 bg-gradient-to-br from-[#F9F3E5] to-white border border-[#E5C97A] p-6 rounded-2xl mb-8 print:border-gray-800 print:bg-white shadow-sm">
               
               {/* Foto Box */}
-              <div className="w-24 h-32 flex-shrink-0 bg-white border-2 border-dashed border-[#D4A017] rounded-lg overflow-hidden flex flex-col items-center justify-center text-[#8B6508] mx-auto sm:mx-0 print:border-solid print:border-[#000]">
+              <div className="w-28 h-36 flex-shrink-0 bg-white border-2 border-dashed border-[#D4A017] rounded-xl overflow-hidden flex flex-col items-center justify-center text-[#8B6508] mx-auto sm:mx-0 shadow-inner print:border-solid print:border-gray-800 relative group">
                 {student.foto ? (
                   <img 
                     src={student.foto} 
                     alt={`Foto ${student.nama}`} 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'flex';
@@ -232,86 +266,93 @@ export default function App() {
                   />
                 ) : null}
                 <div className={`flex-col items-center justify-center ${student.foto ? 'hidden' : 'flex'}`}>
-                  <User size={32} />
-                  <span className="text-[10px] font-bold mt-1">FOTO</span>
+                  <User size={36} className="mb-2 opacity-50" />
+                  <span className="text-xs font-bold tracking-widest opacity-50">FOTO</span>
                 </div>
               </div>
 
               <div className="flex-1 text-center sm:text-left flex flex-col justify-center">
-                <h2 className="text-xl md:text-2xl text-[#2C2416] mb-2 leading-tight uppercase" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
+                <h2 className="text-2xl md:text-3xl text-[#2C2416] mb-4 leading-tight uppercase" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
                   {student.nama}
                 </h2>
-                <div className="space-y-1 text-sm md:text-base text-[#6B5E44]">
-                  <p>NISN <span className="mx-2">:</span> <strong className="text-[#3D2B00]">{student.nisn.replace(/^'/, '')}</strong></p>
-                  <p>Tgl Lahir <span className="mx-1">:</span> <strong className="text-[#3D2B00]">{student.tgl}</strong></p>
+                <div className="grid grid-cols-1 gap-2 text-sm md:text-base text-[#6B5E44] bg-white/50 p-4 rounded-xl border border-[#E5C97A]/30 print:border-none print:p-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center">
+                    <span className="w-24 font-semibold text-[#8B6508]">NISN</span>
+                    <span className="hidden sm:inline mx-2 text-[#E5C97A]">:</span>
+                    <strong className="text-[#3D2B00]">{student.nisn.replace(/^'/, '')}</strong>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center">
+                    <span className="w-24 font-semibold text-[#8B6508]">Tgl Lahir</span>
+                    <span className="hidden sm:inline mx-2 text-[#E5C97A]">:</span>
+                    <strong className="text-[#3D2B00]">{student.tgl}</strong>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Accordion TKA */}
-            <div className="mb-6">
+            <div className="relative z-10 mb-8">
               <button 
                 onClick={() => setIsTkaOpen(!isTkaOpen)}
-                className="w-full flex items-center justify-between bg-white border border-[#D4A017] text-[#8B6508] py-3 px-5 rounded-xl font-bold hover:bg-[#F9F3E5] transition-colors print:hidden"
+                className="w-full flex items-center justify-between bg-white border-2 border-[#D4A017]/50 text-[#8B6508] py-4 px-6 rounded-xl font-bold hover:bg-[#F9F3E5] hover:border-[#D4A017] transition-all print:hidden shadow-sm"
               >
-                <div className="flex items-center gap-2">
-                  <FileText size={18} /> Lihat Hasil TKA
+                <div className="flex items-center gap-3">
+                  <FileText size={20} className="text-[#D4A017]" /> 
+                  <span className="tracking-wide">Lihat Detail Nilai Akademik</span>
                 </div>
                 <ChevronDown size={20} className={`transition-transform duration-300 ${isTkaOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Wrapper Accordion dengan Tailwind Transition */}
               <div 
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${isTkaOpen ? 'max-h-[600px] mt-4 opacity-100' : 'max-h-0 opacity-0'} print:max-h-none print:opacity-100 print:mt-6 print:block`}
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${isTkaOpen ? 'max-h-[800px] mt-4 opacity-100' : 'max-h-0 opacity-0'} print:max-h-none print:opacity-100 print:mt-6 print:block`}
               >
-                <div className="bg-white border border-[#E5C97A] rounded-xl overflow-hidden print:border-[#000]">
-                  <div className="bg-[#F9F3E5] text-[#8B6508] font-bold text-center py-2 text-sm uppercase tracking-wider border-b border-[#E5C97A] print:border-[#000] print:bg-white">
+                <div className="bg-white border border-[#E5C97A] rounded-2xl overflow-hidden print:border-gray-800 shadow-sm">
+                  <div className="bg-gradient-to-r from-[#F9F3E5] to-[#FDFBF7] text-[#8B6508] font-bold text-center py-3 text-sm md:text-base uppercase tracking-widest border-b border-[#E5C97A] print:border-gray-800 print:bg-none">
                     Tes Kemampuan Akademik (TKA)
                   </div>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left">
-                      <thead className="bg-white text-[#7A5C1E] border-b border-[#E5C97A] print:border-[#000]">
+                    <table className="w-full text-sm md:text-base text-left">
+                      <thead className="bg-white text-[#7A5C1E] border-b border-[#E5C97A] print:border-gray-800">
                         <tr>
-                          <th className="py-3 px-4 font-bold">Mata Pelajaran</th>
-                          <th className="py-3 px-4 font-bold text-center w-24">Nilai</th>
-                          <th className="py-3 px-4 font-bold text-right w-32">Keterangan</th>
+                          <th className="py-4 px-5 font-bold">Mata Pelajaran</th>
+                          <th className="py-4 px-5 font-bold text-center w-28">Nilai</th>
+                          <th className="py-4 px-5 font-bold text-right w-36">Keterangan</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr className="border-b border-[#F9F3E5] print:border-[#000]">
-                          <td className="py-3 px-4 text-[#3D2B00] font-medium">Matematika</td>
-                          <td className="py-3 px-4 text-center font-bold text-[#2C2416]">{student.mat.toFixed(2)}</td>
-                          <td className="py-3 px-4 text-right">
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${student.matKet.toLowerCase() === 'baik' ? 'bg-[#E8F5E9] text-[#2E7D32] print:border print:border-[#2E7D32]' : 'bg-[#FFF8E1] text-[#F57F17] print:border print:border-[#F57F17]'}`}>
+                        <tr className="border-b border-[#F9F3E5] hover:bg-[#FBF7F0]/50 transition-colors print:border-gray-800">
+                          <td className="py-4 px-5 text-[#3D2B00] font-semibold">Matematika</td>
+                          <td className="py-4 px-5 text-center font-bold text-[#2C2416] text-lg">{student.mat.toFixed(2)}</td>
+                          <td className="py-4 px-5 text-right">
+                            <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide ${student.matKet.toLowerCase() === 'baik' ? 'bg-[#E8F5E9] text-[#2E7D32] print:border print:border-[#2E7D32]' : 'bg-[#FFF8E1] text-[#F57F17] print:border print:border-[#F57F17]'}`}>
                               {student.matKet}
                             </span>
                           </td>
                         </tr>
-                        <tr className="border-b border-[#F9F3E5] print:border-[#000]">
-                          <td className="py-3 px-4 text-[#3D2B00] font-medium">Bahasa Indonesia</td>
-                          <td className="py-3 px-4 text-center font-bold text-[#2C2416]">{student.bind.toFixed(2)}</td>
-                          <td className="py-3 px-4 text-right">
-                             <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${student.bindKet.toLowerCase() === 'baik' ? 'bg-[#E8F5E9] text-[#2E7D32] print:border print:border-[#2E7D32]' : 'bg-[#FFF8E1] text-[#F57F17] print:border print:border-[#F57F17]'}`}>
+                        <tr className="border-b border-[#F9F3E5] hover:bg-[#FBF7F0]/50 transition-colors print:border-gray-800">
+                          <td className="py-4 px-5 text-[#3D2B00] font-semibold">Bahasa Indonesia</td>
+                          <td className="py-4 px-5 text-center font-bold text-[#2C2416] text-lg">{student.bind.toFixed(2)}</td>
+                          <td className="py-4 px-5 text-right">
+                             <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide ${student.bindKet.toLowerCase() === 'baik' ? 'bg-[#E8F5E9] text-[#2E7D32] print:border print:border-[#2E7D32]' : 'bg-[#FFF8E1] text-[#F57F17] print:border print:border-[#F57F17]'}`}>
                               {student.bindKet}
                             </span>
                           </td>
                         </tr>
-                        <tr className="bg-[#F9F3E5] print:bg-white">
-                          <td className="py-3 px-4 text-[#8B6508] font-bold">Rata-rata Nilai Siswa</td>
-                          <td className="py-3 px-4 text-center font-bold text-[#8B6508] text-base">{student.rata.toFixed(2)}</td>
-                          <td className="py-3 px-4"></td>
+                        <tr className="bg-gradient-to-r from-[#F9F3E5] to-[#FDFBF7] print:bg-none print:border-t print:border-gray-800">
+                          <td className="py-4 px-5 text-[#8B6508] font-extrabold uppercase">Rata-rata Nilai</td>
+                          <td className="py-4 px-5 text-center font-extrabold text-[#8B6508] text-xl">{student.rata.toFixed(2)}</td>
+                          <td className="py-4 px-5"></td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                 </div>
 
-                {/* Perbandingan Rata-rata mengambil properti student.rataKelas dari Server GAS */}
-                <div className={`mt-3 p-3 rounded-lg flex items-center justify-center gap-2 text-sm font-semibold border ${student.rata >= student.rataKelas ? 'bg-[#E8F5E9] text-[#1B5E20] border-[#A5D6A7]' : 'bg-[#FFEBEE] text-[#C62828] border-[#FFCDD2]'} print:border-[#000] print:bg-white`}>
+                <div className={`mt-4 p-4 rounded-xl flex items-center justify-center gap-2 text-sm md:text-base font-bold border shadow-sm ${student.rata >= student.rataKelas ? 'bg-[#E8F5E9] text-[#1B5E20] border-[#A5D6A7]' : 'bg-[#FFEBEE] text-[#C62828] border-[#FFCDD2]'} print:border-gray-800 print:bg-white print:text-black`}>
                   {student.rata >= student.rataKelas ? (
-                    <>Rata-rata Siswa di atas Rata-rata Kelas ({student.rataKelas.toFixed(2)})</>
+                    <>🎯 Rata-rata Siswa di atas Rata-rata Kelas ({student.rataKelas.toFixed(2)})</>
                   ) : (
-                    <>Rata-rata Siswa di bawah Rata-rata Kelas ({student.rataKelas.toFixed(2)})</>
+                    <>📉 Rata-rata Siswa di bawah Rata-rata Kelas ({student.rataKelas.toFixed(2)})</>
                   )}
                 </div>
               </div>
@@ -320,10 +361,10 @@ export default function App() {
             {/* Tombol Print */}
             <button 
               onClick={handlePrint}
-              className="w-full bg-[#8B6508] hover:bg-[#6B4F0F] text-[#F9F3E5] py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all transform active:scale-[0.98] shadow-lg shadow-[#8B6508]/20 print:hidden"
+              className="relative z-10 w-full bg-gradient-to-r from-[#8B6508] to-[#6B4F0F] hover:from-[#7A5C1E] hover:to-[#5C4305] text-[#F9F3E5] py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition-all transform active:scale-[0.98] shadow-[0_8px_20px_rgb(139,101,8,0.3)] hover:shadow-[0_12px_25px_rgb(139,101,8,0.4)] print:hidden tracking-wide text-lg"
             >
-              <Printer size={18} />
-              Cetak / Unduh PDF
+              <Printer size={22} />
+              Cetak Dokumen Kelulusan
             </button>
             
           </div>

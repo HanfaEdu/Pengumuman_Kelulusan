@@ -298,7 +298,7 @@ export default function App() {
               >
                 <div className="flex items-center gap-3">
                   <FileText size={20} className="text-[#D4A017]" /> 
-                  <span className="tracking-wide">Lihat Detail Nilai Akademik</span>
+                  <span className="tracking-wide">Lihat Nilai TKA</span>
                 </div>
                 <ChevronDown size={20} className={`transition-transform duration-300 ${isTkaOpen ? 'rotate-180' : ''}`} />
               </button>

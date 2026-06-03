@@ -16,13 +16,11 @@ export default function App() {
 
   // Injeksi Font Playfair Display & Animasi Custom
   useEffect(() => {
-    // Inject Font
     const fontLink = document.createElement('link');
     fontLink.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&display=swap';
     fontLink.rel = 'stylesheet';
     document.head.appendChild(fontLink);
 
-    // Inject Custom Keyframes (Animasi Emas Bernyawa)
     const style = document.createElement('style');
     style.innerHTML = `
       @keyframes floatGlow {
@@ -113,10 +111,35 @@ export default function App() {
     }, 300);
   };
 
+  // Helper untuk mengubah nama huruf besar (KAPITAL) menjadi huruf awal kapital saja (Title Case)
+  // Agar kalimat deskripsi terlihat lebih ramah/tidak seperti berteriak.
+  const toTitleCase = (str) => {
+    if (!str) return '';
+    return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
+
+  // Fungsi pembuat deskripsi dinamis
+  const getDeskripsiKelulusan = () => {
+    if (!student) return '';
+    
+    const isMatBaik = student.matKet.toLowerCase() === 'baik';
+    const isBindBaik = student.bindKet.toLowerCase() === 'baik';
+    const namaSiswa = toTitleCase(student.nama);
+
+    if (isMatBaik && isBindBaik) {
+      return `Alhamdulillah nilai ananda ${namaSiswa} sudah baik pada mata pelajaran Matematika dan Bahasa Indonesia. Barakallah, selamat atas kelulusannya.`;
+    } else if (!isMatBaik && !isBindBaik) {
+      return `Ananda ${namaSiswa} perlu motivasi pada mata pelajaran Matematika dan Bahasa Indonesia, semoga dapat meningkat di masa depan. Barakallah, selamat atas kelulusannya.`;
+    } else if (isMatBaik && !isBindBaik) {
+      return `Alhamdulillah nilai ananda ${namaSiswa} sudah baik pada mata pelajaran Matematika dan perlu motivasi pada mata pelajaran Bahasa Indonesia, semoga dapat meningkat di masa depan. Barakallah, selamat atas kelulusannya.`;
+    } else {
+      return `Alhamdulillah nilai ananda ${namaSiswa} sudah baik pada mata pelajaran Bahasa Indonesia dan perlu motivasi pada mata pelajaran Matematika, semoga dapat meningkat di masa depan. Barakallah, selamat atas kelulusannya.`;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FBF7F0] text-[#3D2B00] font-sans flex items-center justify-center p-4 md:p-8 print:bg-white print:p-0 overflow-hidden relative">
       
-      {/* Container Utama dengan Transisi Halus */}
       <div 
         className={`w-full max-w-lg transition-all duration-500 ease-in-out ${
           isAnimating ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'
@@ -127,7 +150,6 @@ export default function App() {
         {view === 'login' && (
           <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-[0_15px_40px_rgb(184,134,11,0.15)] border border-[#E5C97A]/60 p-6 md:p-10 print:hidden relative overflow-hidden">
             
-            {/* Animasi Emas Bergerak */}
             <div className="absolute -top-10 -right-10 w-48 h-48 bg-gradient-to-br from-[#D4A017] to-[#F9F3E5] rounded-full z-0 gold-glow-1 mix-blend-multiply opacity-50"></div>
             <div className="absolute -bottom-12 -left-12 w-56 h-56 bg-gradient-to-tr from-[#E5C97A] to-[#FBF7F0] rounded-full z-0 gold-glow-2 mix-blend-multiply opacity-50"></div>
 
@@ -332,7 +354,10 @@ export default function App() {
                               {student.matKet}
                             </span>
                           </td>
-                          <td className="py-4 px-4 border-l-2 border-dashed border-[#E5C97A]/60 bg-[#FDFBF7] print:border-solid print:border-gray-400 print:bg-transparent text-center text-[#D4A017] print:text-gray-400 font-bold">-</td>
+                          <td className="py-4 px-4 border-l-2 border-dashed border-[#E5C97A]/60 bg-[#FDFBF7] print:border-solid print:border-gray-400 print:bg-transparent text-center text-[#D4A017] print:text-gray-400 font-bold">
+                            {/* Menunggu input dari GAS, jika belum ada tampilkan '-' */}
+                            {student.rataKelasMat ? student.rataKelasMat.toFixed(2) : '-'}
+                          </td>
                         </tr>
                         
                         {/* Bahasa Indonesia */}
@@ -344,7 +369,10 @@ export default function App() {
                               {student.bindKet}
                             </span>
                           </td>
-                          <td className="py-4 px-4 border-l-2 border-dashed border-[#E5C97A]/60 bg-[#FDFBF7] print:border-solid print:border-gray-400 print:bg-transparent text-center text-[#D4A017] print:text-gray-400 font-bold">-</td>
+                          <td className="py-4 px-4 border-l-2 border-dashed border-[#E5C97A]/60 bg-[#FDFBF7] print:border-solid print:border-gray-400 print:bg-transparent text-center text-[#D4A017] print:text-gray-400 font-bold">
+                            {/* Menunggu input dari GAS, jika belum ada tampilkan '-' */}
+                            {student.rataKelasBind ? student.rataKelasBind.toFixed(2) : '-'}
+                          </td>
                         </tr>
                         
                         {/* Row Total Rata-Rata */}
@@ -354,7 +382,7 @@ export default function App() {
                           <td className="py-5 px-4"></td>
                           {/* Rata-rata Kelas ditempatkan sejajar di kanan Rata-rata Siswa */}
                           <td className="py-5 px-4 border-l-2 border-solid border-[#D4A017] bg-[#F9F3E5] print:border-gray-800 print:bg-transparent text-center font-extrabold text-[#2C2416] text-xl">
-                            {student.rataKelas.toFixed(2)}
+                            {student.rataKelas ? student.rataKelas.toFixed(2) : '-'}
                           </td>
                         </tr>
                       </tbody>
@@ -362,13 +390,12 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Kotak Kesimpulan */}
-                <div className={`mt-5 p-4 rounded-xl flex items-center justify-center gap-2 text-sm md:text-base font-bold border shadow-sm ${student.rata >= student.rataKelas ? 'bg-[#E8F5E9] text-[#1B5E20] border-[#A5D6A7]' : 'bg-[#FFEBEE] text-[#C62828] border-[#FFCDD2]'} print:border-gray-800 print:bg-white print:text-black`}>
-                  {student.rata >= student.rataKelas ? (
-                    <>🎯 Rata-rata Nilai Siswa berada di atas Rata-rata Kelas</>
-                  ) : (
-                    <>📉 Rata-rata Nilai Siswa berada di bawah Rata-rata Kelas</>
-                  )}
+                {/* Kotak Kesimpulan Deskriptif Dinamis (Disembunyikan saat cetak PDF) */}
+                <div className="mt-5 p-5 rounded-xl bg-gradient-to-br from-[#FDFBF7] to-[#F9F3E5] border border-[#E5C97A]/80 shadow-sm text-sm md:text-base text-[#3D2B00] leading-relaxed text-center font-medium print:hidden">
+                  <div className="flex justify-center mb-2">
+                    <Award size={24} className="text-[#D4A017]" />
+                  </div>
+                  {getDeskripsiKelulusan()}
                 </div>
 
               </div>

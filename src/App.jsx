@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, AlertCircle, ArrowLeft, Award, FileText, ChevronDown, Printer, User, Loader2 } from 'lucide-react';
+import { Search, AlertCircle, ArrowLeft, Award, FileText, ChevronDown, Printer, User, Loader2, Sparkles } from 'lucide-react';
 
-// URL Endpoint Google Apps Script (GAS)
+// URL Endpoint Google Apps Script (GAS) yang baru/aktif
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzw7YSzEo1KfUeOJtCZ3j6jsq1J4MJ-OQaMmqrNMnfLZxtKIO-yAsa1JdZ1-qIqJLA/exec";
 
 export default function App() {
@@ -75,6 +75,13 @@ export default function App() {
       document.head.removeChild(style);
     };
   }, []);
+
+  // Helper untuk memformat angka menjadi format desimal Indonesia (2 angka di belakang koma dengan pemisah ',')
+  const formatNumber = (num) => {
+    if (num === null || num === undefined || isNaN(num)) return '0,00';
+    const parsedNum = parseFloat(num);
+    return parsedNum.toFixed(2).replace('.', ',');
+  };
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
@@ -350,10 +357,7 @@ export default function App() {
               <div 
                 className={`overflow-hidden transition-all duration-500 ease-in-out ${isTkaOpen ? 'max-h-[1400px] mt-4 opacity-100' : 'max-h-0 opacity-0'} print:max-h-none print:opacity-100 print:mt-6 print:block`}
               >
-                {/* TABEL 1: Tabel Utama Nilai TKA
-                  - Pada mode Web/HP: Hanya menampilkan 3 Kolom (Mapel, Nilai, Keterangan).
-                  - Pada mode Cetak (Print): Otomatis menampilkan 4 kolom (Mapel, Nilai, Keterangan, Rata-Rata Kelas).
-                */}
+                {/* TABEL 1: Tabel Utama Nilai TKA */}
                 <div className="bg-white border border-[#E5C97A] rounded-2xl overflow-hidden print:border-gray-800 shadow-sm">
                   <div className="bg-gradient-to-r from-[#F9F3E5] to-[#FDFBF7] text-[#8B6508] font-bold text-center py-3 text-sm md:text-base uppercase tracking-widest border-b border-[#E5C97A] print:border-gray-800 print:bg-none">
                     Tes Kemampuan Akademik (TKA)
@@ -377,38 +381,38 @@ export default function App() {
                         {/* Matematika */}
                         <tr className="border-b border-[#F9F3E5] hover:bg-[#FBF7F0]/50 transition-colors print:border-gray-800">
                           <td className="py-4 px-4 text-[#3D2B00] font-semibold">Matematika</td>
-                          <td className="py-4 px-4 text-center font-bold text-[#2C2416] text-lg">{student.mat.toFixed(2)}</td>
+                          <td className="py-4 px-4 text-center font-bold text-[#2C2416] text-lg">{formatNumber(student.mat)}</td>
                           <td className="py-4 px-4 text-center">
                             <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide ${student.matKet.toLowerCase() === 'baik' ? 'bg-[#E8F5E9] text-[#2E7D32] print:border print:border-[#2E7D32]' : 'bg-[#FFF8E1] text-[#F57F17] print:border print:border-[#F57F17]'}`}>
                               {student.matKet}
                             </span>
                           </td>
                           <td className="hidden print:table-cell py-4 px-4 border-l-2 border-dashed border-[#E5C97A]/60 print:border-solid print:border-gray-400 text-center font-bold">
-                            {student.rataKelasMat ? student.rataKelasMat.toFixed(2) : '-'}
+                            {student.rataKelasMat ? formatNumber(student.rataKelasMat) : '-'}
                           </td>
                         </tr>
                         
                         {/* Bahasa Indonesia */}
                         <tr className="border-b border-[#E5C97A] hover:bg-[#FBF7F0]/50 transition-colors print:border-gray-800">
                           <td className="py-4 px-4 text-[#3D2B00] font-semibold">Bahasa Indonesia</td>
-                          <td className="py-4 px-4 text-center font-bold text-[#2C2416] text-lg">{student.bind.toFixed(2)}</td>
+                          <td className="py-4 px-4 text-center font-bold text-[#2C2416] text-lg">{formatNumber(student.bind)}</td>
                           <td className="py-4 px-4 text-center">
                              <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide ${student.bindKet.toLowerCase() === 'baik' ? 'bg-[#E8F5E9] text-[#2E7D32] print:border print:border-[#2E7D32]' : 'bg-[#FFF8E1] text-[#F57F17] print:border print:border-[#F57F17]'}`}>
                               {student.bindKet}
                             </span>
                           </td>
                           <td className="hidden print:table-cell py-4 px-4 border-l-2 border-dashed border-[#E5C97A]/60 print:border-solid print:border-gray-400 text-center font-bold">
-                            {student.rataKelasBind ? student.rataKelasBind.toFixed(2) : '-'}
+                            {student.rataKelasBind ? formatNumber(student.rataKelasBind) : '-'}
                           </td>
                         </tr>
                         
                         {/* Row Total Rata-Rata */}
                         <tr className="bg-gradient-to-r from-[#F9F3E5] to-[#FDFBF7] print:bg-none print:border-t print:border-gray-800">
                           <td className="py-5 px-4 text-[#8B6508] font-extrabold uppercase">Rata-Rata (Gabungan)</td>
-                          <td className="py-5 px-4 text-center font-extrabold text-[#8B6508] text-xl">{student.rata.toFixed(2)}</td>
+                          <td className="py-5 px-4 text-center font-extrabold text-[#8B6508] text-xl">{formatNumber(student.rata)}</td>
                           <td className="py-5 px-4"></td>
                           <td className="hidden print:table-cell py-5 px-4 border-l-2 border-solid border-[#D4A017] print:border-gray-800 text-center font-extrabold text-[#2C2416] text-xl">
-                            {student.rataKelas ? student.rataKelas.toFixed(2) : '-'}
+                            {student.rataKelas ? formatNumber(student.rataKelas) : '-'}
                           </td>
                         </tr>
                       </tbody>
@@ -416,10 +420,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* TABEL 2: Tabel Khusus Rata-Rata Kelas (Terpisah)
-                  - Hanya TAMPIL di Web/HP agar tidak perlu scroll ke kanan.
-                  - DISEMBUNYIKAN saat mode Cetak (Print).
-                */}
+                {/* TABEL 2: Tabel Khusus Rata-Rata Kelas (Terpisah) */}
                 <div className="mt-5 bg-[#FDFBF7] border border-[#E5C97A]/80 rounded-2xl overflow-hidden shadow-sm print:hidden">
                   <div className="bg-gradient-to-r from-[#F9F3E5] to-[#FDFBF7] text-[#8B6508] font-bold text-center py-3 text-sm md:text-base uppercase tracking-widest border-b border-[#E5C97A]/80">
                     Tabel Rata-Rata Kelas
@@ -435,15 +436,15 @@ export default function App() {
                       <tbody>
                         <tr className="border-b border-[#E5C97A]/30">
                           <td className="py-4 px-5 text-[#6B5E44] font-medium">Matematika</td>
-                          <td className="py-4 px-5 text-center font-bold text-[#8B6508] text-lg">{student.rataKelasMat ? student.rataKelasMat.toFixed(2) : '-'}</td>
+                          <td className="py-4 px-5 text-center font-bold text-[#8B6508] text-lg">{student.rataKelasMat ? formatNumber(student.rataKelasMat) : '-'}</td>
                         </tr>
                         <tr className="border-b border-[#E5C97A]/50">
                           <td className="py-4 px-5 text-[#6B5E44] font-medium">Bahasa Indonesia</td>
-                          <td className="py-4 px-5 text-center font-bold text-[#8B6508] text-lg">{student.rataKelasBind ? student.rataKelasBind.toFixed(2) : '-'}</td>
+                          <td className="py-4 px-5 text-center font-bold text-[#8B6508] text-lg">{student.rataKelasBind ? formatNumber(student.rataKelasBind) : '-'}</td>
                         </tr>
                         <tr className="bg-[#F9F3E5]">
                           <td className="py-4 px-5 text-[#8B6508] font-bold uppercase">Rata-Rata (Gabungan)</td>
-                          <td className="py-4 px-5 text-center font-extrabold text-[#8B6508] text-xl">{student.rataKelas ? student.rataKelas.toFixed(2) : '-'}</td>
+                          <td className="py-4 px-5 text-center font-extrabold text-[#8B6508] text-xl">{student.rataKelas ? formatNumber(student.rataKelas) : '-'}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -458,8 +459,50 @@ export default function App() {
                   {getDeskripsiKelulusan()}
                 </div>
 
+                {/* ==================== BINGKAI EXCLUSIVE: RATA-RATA NILAI IJAZAH ==================== */}
+                {student.rataIjazah !== undefined && student.rataIjazah !== null && (
+                  <div className="mt-6 relative z-10 print:hidden">
+                    <div className="relative rounded-2xl bg-gradient-to-r from-[#8B6508] via-[#B8860B] to-[#6B4F0F] p-[2px] shadow-[0_10px_25px_rgba(139,101,8,0.2)]">
+                      <div className="rounded-2xl bg-white px-6 py-5 text-center relative overflow-hidden">
+                        {/* Ornamen latar pendar keemasan */}
+                        <div className="absolute -top-12 -right-12 w-28 h-28 bg-[#D4A017]/10 rounded-full blur-xl pointer-events-none"></div>
+                        <div className="absolute -bottom-12 -left-12 w-28 h-28 bg-[#8B6508]/10 rounded-full blur-xl pointer-events-none"></div>
+                        
+                        <div className="flex items-center justify-center gap-2 mb-1.5 text-[#8B6508]">
+                          <Sparkles size={18} className="animate-pulse" />
+                          <span className="text-xs font-bold uppercase tracking-widest">Pencapaian Akhir</span>
+                          <Sparkles size={18} className="animate-pulse" />
+                        </div>
+                        
+                        <h3 className="text-sm font-semibold text-[#6B5E44] tracking-wide">
+                          RATA-RATA NILAI IJAZAH
+                        </h3>
+                        
+                        <div className="mt-2 text-4xl font-extrabold bg-gradient-to-r from-[#8B6508] via-[#B8860B] to-[#6B4F0F] bg-clip-text text-transparent" style={{ fontFamily: "'Playfair Display', serif" }}>
+                          {formatNumber(student.rataIjazah)}
+                        </div>
+                        
+                        <p className="mt-2 text-xs text-[#8B6508] italic max-w-xs mx-auto leading-relaxed">
+                          *Nilai ini merupakan rata-rata kumulatif seluruh mata pelajaran yang tercantum dalam ijazah kelulusan.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
               </div>
             </div>
+
+            {/* ==================== TAMPILAN PRINT: RATA-RATA NILAI IJAZAH ==================== */}
+            {student.rataIjazah !== undefined && student.rataIjazah !== null && (
+              <div className="hidden print:block my-6 border-2 border-double border-[#8B6508] p-4 rounded-xl text-center">
+                <h4 className="text-xs font-bold text-[#8B6508] tracking-widest uppercase mb-1">RATA-RATA NILAI IJAZAH (KUMULATIF)</h4>
+                <div className="text-3xl font-extrabold text-[#2C2416]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  {formatNumber(student.rataIjazah)}
+                </div>
+                <p className="text-[10px] text-gray-500 italic mt-1">Nilai Gabungan dari Seluruh Komponen Akademik Kelulusan Sekolah Dasar</p>
+              </div>
+            )}
 
             {/* Tombol Print */}
             <button 

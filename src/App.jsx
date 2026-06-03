@@ -23,21 +23,35 @@ export default function App() {
 
     const style = document.createElement('style');
     style.innerHTML = `
-      @keyframes floatGlow {
-        0% { transform: translate(0px, 0px) scale(1); opacity: 0.4; filter: blur(20px); }
-        50% { transform: translate(-15px, 15px) scale(1.1); opacity: 0.8; filter: blur(25px); }
-        100% { transform: translate(0px, 0px) scale(1); opacity: 0.4; filter: blur(20px); }
+      /* Animasi Latar Belakang yang Lembut dan Bernyawa */
+      @keyframes slowFloat {
+        0% { transform: translate(0px, 0px) scale(1); opacity: 0.3; filter: blur(30px); }
+        33% { transform: translate(-25px, 20px) scale(1.05); opacity: 0.5; filter: blur(35px); }
+        66% { transform: translate(20px, -15px) scale(0.95); opacity: 0.35; filter: blur(25px); }
+        100% { transform: translate(0px, 0px) scale(1); opacity: 0.3; filter: blur(30px); }
       }
-      @keyframes floatGlowReverse {
-        0% { transform: translate(0px, 0px) scale(1.1); opacity: 0.8; filter: blur(25px); }
-        50% { transform: translate(15px, -15px) scale(1); opacity: 0.4; filter: blur(20px); }
-        100% { transform: translate(0px, 0px) scale(1.1); opacity: 0.8; filter: blur(25px); }
+      @keyframes slowSpinFloat {
+        0% { transform: rotate(0deg) translate(0px, 0px) scale(1.1); opacity: 0.4; filter: blur(30px); }
+        50% { transform: rotate(180deg) translate(-20px, 20px) scale(1); opacity: 0.6; filter: blur(35px); }
+        100% { transform: rotate(360deg) translate(0px, 0px) scale(1.1); opacity: 0.4; filter: blur(30px); }
       }
-      .gold-glow-1 {
-        animation: floatGlow 6s ease-in-out infinite;
+      
+      /* Animasi Pendar Keemasan untuk Banner Kelulusan */
+      @keyframes goldenGlow {
+        0% { box-shadow: 0 0 5px rgba(212, 160, 23, 0.2), inset 0 0 5px rgba(212, 160, 23, 0.1); border-color: rgba(212, 160, 23, 0.5); }
+        50% { box-shadow: 0 0 20px rgba(212, 160, 23, 0.7), inset 0 0 10px rgba(212, 160, 23, 0.3); border-color: rgba(229, 201, 122, 1); }
+        100% { box-shadow: 0 0 5px rgba(212, 160, 23, 0.2), inset 0 0 5px rgba(212, 160, 23, 0.1); border-color: rgba(212, 160, 23, 0.5); }
       }
-      .gold-glow-2 {
-        animation: floatGlowReverse 7s ease-in-out infinite;
+
+      /* Class Utilities Animasi */
+      .anim-float { animation: slowFloat 18s ease-in-out infinite; }
+      .anim-spin-float { animation: slowSpinFloat 25s linear infinite; }
+      .anim-golden-glow { animation: goldenGlow 3s ease-in-out infinite; }
+
+      /* Mematikan Animasi Saat Mode Cetak */
+      @media print {
+        * { animation: none !important; box-shadow: none !important; }
+        .anim-golden-glow { border-color: #1B5E20 !important; }
       }
     `;
     document.head.appendChild(style);
@@ -111,14 +125,11 @@ export default function App() {
     }, 300);
   };
 
-  // Helper untuk mengubah nama huruf besar (KAPITAL) menjadi huruf awal kapital saja (Title Case)
-  // Agar kalimat deskripsi terlihat lebih ramah/tidak seperti berteriak.
   const toTitleCase = (str) => {
     if (!str) return '';
     return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
-  // Fungsi pembuat deskripsi dinamis
   const getDeskripsiKelulusan = () => {
     if (!student) return '';
     
@@ -150,8 +161,8 @@ export default function App() {
         {view === 'login' && (
           <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-[0_15px_40px_rgb(184,134,11,0.15)] border border-[#E5C97A]/60 p-6 md:p-10 print:hidden relative overflow-hidden">
             
-            <div className="absolute -top-10 -right-10 w-48 h-48 bg-gradient-to-br from-[#D4A017] to-[#F9F3E5] rounded-full z-0 gold-glow-1 mix-blend-multiply opacity-50"></div>
-            <div className="absolute -bottom-12 -left-12 w-56 h-56 bg-gradient-to-tr from-[#E5C97A] to-[#FBF7F0] rounded-full z-0 gold-glow-2 mix-blend-multiply opacity-50"></div>
+            <div className="absolute -top-10 -right-10 w-48 h-48 bg-gradient-to-br from-[#D4A017] to-[#F9F3E5] rounded-full z-0 anim-float mix-blend-multiply opacity-50"></div>
+            <div className="absolute -bottom-12 -left-12 w-56 h-56 bg-gradient-to-tr from-[#E5C97A] to-[#FBF7F0] rounded-full z-0 anim-spin-float mix-blend-multiply opacity-50"></div>
 
             <div className="relative z-10 text-center mb-8">
               <div className="w-24 h-24 mx-auto bg-gradient-to-br from-[#F9F3E5] to-white border-2 border-[#D4A017] rounded-full flex items-center justify-center mb-5 p-1 shadow-lg shadow-[#D4A017]/20 relative group">
@@ -231,7 +242,9 @@ export default function App() {
         {view === 'result' && student && (
           <div className="bg-white rounded-3xl shadow-[0_15px_40px_rgb(184,134,11,0.12)] border border-[#E5C97A]/60 p-6 md:p-10 print:shadow-none print:border-none print:p-0 relative overflow-hidden">
             
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#D4A017]/20 to-transparent rounded-bl-full z-0 gold-glow-1 print:hidden"></div>
+            {/* Dekorasi Animasi Latar - Mengambang Lambat */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#D4A017]/20 to-transparent rounded-bl-full z-0 anim-float print:hidden"></div>
+            <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-[#D4A017]/10 to-transparent rounded-tr-full z-0 anim-spin-float print:hidden"></div>
 
             {/* Tombol Kembali (Hidden on Print) */}
             <button 
@@ -286,27 +299,27 @@ export default function App() {
                 <h2 className="text-2xl md:text-3xl text-[#2C2416] mb-4 leading-tight uppercase" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>
                   {student.nama}
                 </h2>
-                <div className="grid grid-cols-1 gap-2 text-sm md:text-base text-[#6B5E44] bg-white/50 p-4 rounded-xl border border-[#E5C97A]/30 print:border-none print:p-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center">
-                    <span className="w-24 font-semibold text-[#8B6508]">NISN</span>
-                    <span className="hidden sm:inline mx-2 text-[#E5C97A]">:</span>
-                    <strong className="text-[#3D2B00]">{student.nisn.replace(/^'/, '')}</strong>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center">
-                    <span className="w-24 font-semibold text-[#8B6508]">Tgl Lahir</span>
-                    <span className="hidden sm:inline mx-2 text-[#E5C97A]">:</span>
-                    <strong className="text-[#3D2B00]">{student.tgl}</strong>
-                  </div>
+                
+                {/* Perbaikan Tata Letak Data Siswa dengan CSS Grid Presisi */}
+                <div className="grid grid-cols-[80px_15px_1fr] sm:grid-cols-[90px_15px_1fr] text-sm md:text-base text-[#6B5E44] bg-white/50 p-4 rounded-xl border border-[#E5C97A]/30 print:border-none print:p-0 text-left items-center gap-y-2">
+                  <span className="font-semibold text-[#8B6508]">NISN</span>
+                  <span className="text-[#E5C97A] text-center">:</span>
+                  <strong className="text-[#3D2B00]">{student.nisn.replace(/^'/, '')}</strong>
+                  
+                  <span className="font-semibold text-[#8B6508]">Tgl Lahir</span>
+                  <span className="text-[#E5C97A] text-center">:</span>
+                  <strong className="text-[#3D2B00]">{student.tgl}</strong>
                 </div>
+
               </div>
             </div>
 
-            {/* URUTAN 2: Banner Lulus */}
-            <div className="relative z-10 bg-gradient-to-r from-[#1B5E20] via-[#2E7D32] to-[#1B5E20] text-white text-center py-5 px-6 rounded-2xl font-bold tracking-widest text-lg md:text-xl shadow-xl shadow-green-900/20 mb-8 flex items-center justify-center gap-3 overflow-hidden print:border-2 print:border-[#1B5E20] print:text-[#1B5E20] print:bg-none print:shadow-none">
+            {/* URUTAN 2: Banner Lulus dengan Golden Glow */}
+            <div className="relative z-10 bg-gradient-to-r from-[#1B5E20] via-[#2E7D32] to-[#1B5E20] text-[#F9F3E5] text-center py-5 px-6 rounded-2xl font-bold tracking-widest text-lg md:text-xl border-2 border-[#D4A017] anim-golden-glow mb-8 flex items-center justify-center gap-3 overflow-hidden print:border-2 print:border-[#1B5E20] print:text-[#1B5E20] print:bg-none print:shadow-none print:!border-solid">
                <div className="absolute inset-0 bg-white/10 animate-[pulse_2s_ease-in-out_infinite] print:hidden"></div>
-               <Award size={28} className="print:text-[#1B5E20] relative z-10" />
-               <span className="relative z-10 drop-shadow-md print:drop-shadow-none">DINYATAKAN LULUS</span>
-               <Award size={28} className="print:text-[#1B5E20] relative z-10" />
+               <Award size={28} className="relative z-10 text-[#F9F3E5] print:text-[#1B5E20]" />
+               <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] print:drop-shadow-none">DINYATAKAN LULUS</span>
+               <Award size={28} className="relative z-10 text-[#F9F3E5] print:text-[#1B5E20]" />
             </div>
 
             {/* URUTAN 3: Accordion TKA (Tabel Gabungan) */}

@@ -349,7 +349,7 @@ export default function App() {
               >
                 <div className="flex items-center gap-3">
                   <FileText size={20} className="text-[#D4A017]" /> 
-                  <span className="tracking-wide">Lihat Nilai TKA & Rata-Rata Kelas</span>
+                  <span className="tracking-wide">Lihat Nilai</span>
                 </div>
                 <ChevronDown size={20} className={`transition-transform duration-300 ${isTkaOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -483,7 +483,7 @@ export default function App() {
                         </div>
                         
                         <p className="mt-2 text-xs text-[#8B6508] italic max-w-xs mx-auto leading-relaxed">
-                          *Nilai ini merupakan rata-rata kumulatif seluruh mata pelajaran yang tercantum dalam ijazah kelulusan.
+                          *Nilai ini merupakan rata-rata kumulatif seluruh mata pelajaran yang tercantum dalam Surat Keterangan Lulus.
                         </p>
                       </div>
                     </div>

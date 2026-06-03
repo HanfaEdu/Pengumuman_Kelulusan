@@ -475,7 +475,7 @@ export default function App() {
                         </div>
                         
                         <h3 className="text-sm font-semibold text-[#6B5E44] tracking-wide">
-                          RATA-RATA NILAI IJAZAH
+                          RATA-RATA NILAI SKL
                         </h3>
                         
                         <div className="mt-2 text-4xl font-extrabold bg-gradient-to-r from-[#8B6508] via-[#B8860B] to-[#6B4F0F] bg-clip-text text-transparent" style={{ fontFamily: "'Playfair Display', serif" }}>
@@ -496,11 +496,11 @@ export default function App() {
             {/* ==================== TAMPILAN PRINT: RATA-RATA NILAI IJAZAH ==================== */}
             {student.rataIjazah !== undefined && student.rataIjazah !== null && (
               <div className="hidden print:block my-6 border-2 border-double border-[#8B6508] p-4 rounded-xl text-center">
-                <h4 className="text-xs font-bold text-[#8B6508] tracking-widest uppercase mb-1">RATA-RATA NILAI IJAZAH (KUMULATIF)</h4>
+                <h4 className="text-xs font-bold text-[#8B6508] tracking-widest uppercase mb-1">RATA-RATA NILAI SKL (KUMULATIF)</h4>
                 <div className="text-3xl font-extrabold text-[#2C2416]" style={{ fontFamily: "'Playfair Display', serif" }}>
                   {formatNumber(student.rataIjazah)}
                 </div>
-                <p className="text-[10px] text-gray-500 italic mt-1">Nilai Gabungan dari Seluruh Komponen Akademik Kelulusan Sekolah Dasar</p>
+                <p className="text-[10px] text-gray-500 italic mt-1">Nilai Gabungan dari Seluruh Komponen Akademik pada SKL</p>
               </div>
             )}
 
